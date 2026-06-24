@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="나의 자산">
+<title>나의 자산 관리</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+</head>
+<body class="bg-gray-100">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } = Recharts;
+
+function App() {
+const [assets, setAssets] = useState(() => {
+const saved = localStorage.getItem('myAssets');
+return saved ? JSON.parse(saved) : { 법인: 0, 부동산: 0, 금융자산: 0 };
+});
+
+useEffect(() => {
+localStorage.setItem('myAssets', JSON.stringify(assets));
+}, [assets]);
+
+const copyData = () => {
+const dataStr = JSON.stringify(assets);
+navigator.clipboard.writeText(dataStr).then(() => {
+alert("데이터가 복사되었습니다! 메모장에 붙여넣어 보관하세요.");
+});
+};
+
+const total = assets.법인 + assets.부동산 + assets.금융자산;
+
+return (
+<div className="w-full max-w-md mx-auto h-screen bg-white shadow-xl flex flex-col p-4">
+<header className="flex justify-between items-center mb-6">
+<h1 className="font-bold text-xl">나의 자산</h1>
+<button onClick={copyData} className="text-xs bg-blue-500 text-white px-3 py-1 rounded">데이터 복사</button>
+</header>
+
+<div className="text-center mb-6">
+<div className="text-2xl font-bold">{total.toLocaleString()} 원</div>
+</div>
+
+<div className="space-y-4">
+{Object.keys(assets).map((key) => (
+<div key={key} className="flex gap-2 items-center">
+<span className="w-16 text-sm">{key}</span>
+<input
+type="number"
+value={assets[key]}
+onChange={(e) => setAssets(prev => ({...prev, [key]: Number(e.target.value)}))}
+className="border p-2 rounded w-full"
+/>
+</div>
+))}
+</div>
+</div>
+);
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
