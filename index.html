@@ -2,51 +2,54 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>나의 자산 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 자산</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
 </head>
-<body class="bg-gray-100">
-    <div id="root">로딩중...</div>
+<body class="bg-gray-100 p-4">
+    <div id="app" class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg">
+        <h1 class="text-xl font-bold mb-4">나의 자산 관리</h1>
+        <div id="total" class="text-2xl font-bold mb-6 text-center">0 원</div>
+        <div class="space-y-4">
+            <div class="flex items-center">
+                <span class="w-16">법인</span>
+                <input type="number" id="asset1" value="0" class="border p-2 w-full rounded" onchange="update()">
+            </div>
+            <div class="flex items-center">
+                <span class="w-16">부동산</span>
+                <input type="number" id="asset2" value="0" class="border p-2 w-full rounded" onchange="update()">
+            </div>
+            <div class="flex items-center">
+                <span class="w-16">금융</span>
+                <input type="number" id="asset3" value="0" class="border p-2 w-full rounded" onchange="update()">
+            </div>
+        </div>
+    </div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        function App() {
-            const [assets, setAssets] = useState({ 법인: 0, 부동산: 0, 금융자산: 0 });
+    <script>
+        // 저장된 데이터 불러오기
+        const saved = JSON.parse(localStorage.getItem('myAssets')) || { a1: 0, a2: 0, a3: 0 };
+        document.getElementById('asset1').value = saved.a1;
+        document.getElementById('asset2').value = saved.a2;
+        document.getElementById('asset3').value = saved.a3;
+        calc();
 
-            useEffect(() => {
-                const saved = localStorage.getItem('myAssets');
-                if (saved) setAssets(JSON.parse(saved));
-            }, []);
-
-            useEffect(() => {
-                localStorage.setItem('myAssets', JSON.stringify(assets));
-            }, [assets]);
-
-            const total = assets.법인 + assets.부동산 + assets.금융자산;
-
-            return (
-                <div className="p-4 max-w-md mx-auto">
-                    <h1 className="text-xl font-bold mb-4">나의 자산: {total.toLocaleString()}원</h1>
-                    <div className="space-y-4">
-                        {Object.entries(assets).map(([key, value]) => (
-                            <div key={key} className="flex gap-2">
-                                <span className="w-16">{key}</span>
-                                <input type="number" value={value} 
-                                       onChange={(e) => setAssets(prev => ({...prev, [key]: Number(e.target.value)}))}
-                                       className="border p-2 w-full rounded" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
+        function update() {
+            const data = {
+                a1: Number(document.getElementById('asset1').value),
+                a2: Number(document.getElementById('asset2').value),
+                a3: Number(document.getElementById('asset3').value)
+            };
+            localStorage.setItem('myAssets', JSON.stringify(data));
+            calc();
         }
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+
+        function calc() {
+            const total = Number(document.getElementById('asset1').value) + 
+                          Number(document.getElementById('asset2').value) + 
+                          Number(document.getElementById('asset3').value);
+            document.getElementById('total').innerText = total.toLocaleString() + ' 원';
+        }
     </script>
 </body>
 </html>
